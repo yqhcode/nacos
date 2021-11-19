@@ -1,0 +1,22 @@
+{
+    "name": "yqhcode/nacos",
+    "description": "php-nacos",
+    "type": "composer-plugin",
+    "autoload": {
+        "psr-4": {
+            "Nacos\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "yqh",
+            "email": "785458980@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.4",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "^6.3|^7.0"
+    }
+}
