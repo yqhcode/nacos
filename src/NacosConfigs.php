@@ -2,13 +2,14 @@
 /**
  * Nacos配置
  */
+
 namespace Nacos;
 
 use Nacos\Config\NacosConfig;
 use Nacos\Exceptions\NacosConfigNotFound;
 use Nacos\Exceptions\NacosException;
 use Nacos\Exceptions\NacosRequestException;
-use Nacos\Models\Config;
+use Nacos\Models\Configs;
 use Nacos\Utils\PropertiesConfigParser;
 use Nacos\NacosClient;
 
@@ -17,7 +18,7 @@ class NacosConfigs
     /**
      * @var NacosClient
      */
-    protected NacosClient $client;
+    protected $client;
 
     public function __construct(NacosClient $client)
     {
@@ -33,7 +34,6 @@ class NacosConfigs
      */
     public function getConfigs(string $dataId, string $group = NacosConfig::DEFAULT_GROUP)
     {
-        echo 22;
         $query = [
             'dataId' => $dataId,
             'group' => $group,
@@ -57,6 +57,7 @@ class NacosConfigs
 
         return $resp->getBody()->__toString();
     }
+
     /**
      * 发布配置
      * @param string $dataId
@@ -65,7 +66,7 @@ class NacosConfigs
      * @return bool
      * @throws NacosRequestException
      */
-    public function publishConfig(string $dataId, string $group, $content)
+    public function setConfigs(string $dataId, $content, string $group = NacosConfig::DEFAULT_GROUP)
     {
         $formParams = [
             'dataId' => $dataId,
@@ -73,12 +74,12 @@ class NacosConfigs
             'content' => $content,
         ];
 
-        if ($this->namespace) {
-            $formParams['tenant'] = $this->namespace;
+        if ($this->client->namespace) {
+            $query['tenant'] = $this->client->namespace;
         }
 
-        $resp = $this->request('POST', NacosConfig::NACOS_CONFIGS, ['form_params' => $formParams]);
-        $this->assertResponse($resp, 'true', "NacosClient update config fail");
+        $resp = $this->client->request('POST', NacosConfig::NACOS_CONFIGS, ['form_params' => $formParams]);
+        $this->client->assertResponse($resp, 'true', "NacosClient update config fail");
 
         return true;
     }
@@ -90,19 +91,19 @@ class NacosConfigs
      * @return bool
      * @throws NacosRequestException
      */
-    public function removeConfig(string $dataId, string $group = NacosConfig::DEFAULT_GROUP): bool
+    public function delConfigs(string $dataId, string $group = NacosConfig::DEFAULT_GROUP): bool
     {
         $query = [
             'dataId' => $dataId,
             'group' => $group,
         ];
 
-        if ($this->namespace) {
-            $query['tenant'] = $this->namespace;
+        if ($this->client->namespace) {
+            $query['tenant'] = $this->client->namespace;
         }
 
-        $resp = $this->request('DELETE', NacosConfig::NACOS_CONFIGS, ['query' => $query]);
-        $this->assertResponse($resp, 'true', "NacosClient delete config fail");
+        $resp = $this->client->request('DELETE', NacosConfig::NACOS_CONFIGS, ['query' => $query]);
+        $this->client->assertResponse($resp, 'true', "NacosClient delete config fail");
 
         return true;
     }
@@ -110,11 +111,11 @@ class NacosConfigs
 
     /**
      * 监听配置
-     * @param Config[] $configs
+     * @param Configs[] $configs
      * @param int $timeout 长轮训等待事件，默认 30 ，单位：秒
-     * @return Config[]
+     * @return Configs[]
      */
-    public function listenConfig(array $configs, int $timeout = 30): array
+    public function listenConfigs(array $configs, int $timeout = NacosConfig::DEFAULT_TIME_OUT): array
     {
         $configStringList = [];
         foreach ($configs as $cache) {
@@ -126,8 +127,8 @@ class NacosConfigs
         }
         $configString = join(NacosConfig::LINE_SEPARATOR, $configStringList) . NacosConfig::LINE_SEPARATOR;
 
-        $resp = $this->request('POST', NacosConfig::NACOS_CONFIGS_LISTENER, [
-            'timeout' => $timeout + $this->timeout,
+        $resp = $this->client->request('POST', NacosConfig::NACOS_CONFIGS_LISTENER, [
+            'timeout' => $timeout + 3,
             'headers' => ['Long-Pulling-Timeout' => $timeout * 1000],
             'form_params' => [
                 'Listening-Configs' => $configString,
@@ -156,27 +157,38 @@ class NacosConfigs
         return $changed;
     }
 
+    /**
+     * 查询配置项历史版本---------------
+     * @param string $dataId
+     * @param string $group
+     * @return bool
+     * @throws NacosRequestException
+     */
+    public function historyConfigs(string $dataId, bool $search = false, string $group = NacosConfig::DEFAULT_GROUP): bool
+    {
+        $query = [
+            'dataId' => $dataId,
+            'group' => $group,
+        ];
+        if ($search) {
+            $query['search'] = 'accurate';
+        }
 
+        if ($this->client->namespace) {
+            $query['tenant'] = $this->client->namespace;
+        }
 
+        $res = $this->client->request('GET', NacosConfig::NACOS_HISTORY, ['query' => $query]);
 
+        if (NacosConfigNotFound::NOT_FOUND === $res->getStatusCode()) {
+            throw new NacosConfigNotFound(
+                "获取配置->无法找到资源, dataId:{$dataId} group:{$group} tenant:{$this->client->namespace}",
+                NacosConfigNotFound::NOT_FOUND
+            );
+        }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return $res->getBody()->__toString();
+    }
 
 
     /**
@@ -202,11 +214,5 @@ class NacosConfigs
         throw new NacosException('Unsupported config format');
     }
 
-    /**
-     * @return NacosClient
-     */
-    public function getClient(): NacosClient
-    {
-        return $this->client;
-    }
+
 }

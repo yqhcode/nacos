@@ -2,6 +2,7 @@
 
 namespace Nacos\Models;
 
+use Nacos\Config\NacosConfig;
 use Nacos\Exceptions\NacosException;
 
 class ServiceInstance

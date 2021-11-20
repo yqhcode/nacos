@@ -7,5 +7,5 @@ class BeatResult
     /**
      * @var int
      */
-    public int $clientBeatInterval;
+    public $clientBeatInterval;
 }

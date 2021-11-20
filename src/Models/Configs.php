@@ -4,7 +4,7 @@ namespace Nacos\Models;
 
 use Nacos\Config\NacosConfig;
 
-class Config
+class Configs
 {
     /**
      * @var string
