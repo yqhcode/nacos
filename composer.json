@@ -1,24 +1,23 @@
 {
-    "name": "yqhcode/nacos",
-    "version": "0.0.1",
-    "description": "php-nacos",
-    "type": "library",
-    "license": "Apache-2.0",
-    "autoload": {
-        "psr-4": {
-            "Nacos\\": "src/"
-        }
-    },
-    "authors": [
-        {
-            "name": "yqh",
-            "email": "785458980@qq.com"
-        }
-    ],
-    "minimum-stability": "dev",
-    "require": {
-        "php": ">=7.0",
-        "ext-json": "*",
-        "guzzlehttp/guzzle": "^6.3|^7.0"
+  "name": "yqhcode/nacos",
+  "version": "0.0.1",
+  "description": "php-nacos",
+  "type": "library",
+  "license": "Apache-2.0",
+  "autoload": {
+    "psr-4": {
+      "Nacos\\": "src/"
     }
+  },
+  "authors": [
+    {
+      "name": "yqh",
+      "email": "785458980@qq.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6.3|^7.0"
+  }
 }
