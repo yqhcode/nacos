@@ -10,7 +10,7 @@ class NacosNaming
     /**
      * @var NacosClient
      */
-    protected NacosClient $client;
+    protected $client;
 
     public function __construct(NacosClient $client)
     {
@@ -31,7 +31,7 @@ class NacosNaming
     /**
      * @return NacosClient
      */
-    public function getClient(): NacosClient
+    public function getClient()
     {
         return $this->client;
     }
