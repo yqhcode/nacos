@@ -1,6 +1,5 @@
 {
   "name": "yqhcode/nacos",
-  "version": "1.0",
   "description": "php-nacos",
   "type": "library",
   "license": "Apache-2.0",
