@@ -145,13 +145,15 @@ class NacoInstance
     /**
      * 发送实例心跳
      * @param string $serviceName
+     * @param string $namespaceId
      * @param BeatInfo $beat
      * @return BeatResult
      */
-    public function sendInstanceBeat(string $serviceName, BeatInfo $beat): BeatResult
+    public function sendInstanceBeat(string $serviceName,string $namespaceId, BeatInfo $beat): BeatResult
     {
         $formParams = [
             'serviceName' => $serviceName,
+            'namespaceId' => $namespaceId,
             'beat' => json_encode($beat),
         ];
 
